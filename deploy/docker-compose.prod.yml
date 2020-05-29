@@ -1,0 +1,8 @@
+version: '3.5'
+
+services:
+  kafka-rest:
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
