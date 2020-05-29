@@ -1,0 +1,44 @@
+version: '3.5'
+
+services:
+  kafka-rest:
+    image: ${IMAGE_NAME:-confluentinc/cp-kafka-rest}:${IMAGE_TAG:-latest}
+    environment:
+      KAFKA_REST_ZOOKEEPER_CONNECT: zk-1:${ZK_PORT},zk-2:${ZK_PORT},zk-3:${ZK_PORT}
+      KAFKA_REST_BOOTSTRAP_SERVERS: kf-1:${KF_PORT},kf-2:${KF_PORT},kf-3:${KF_PORT}
+      KAFKA_REST_LISTENERS: 'http://0.0.0.0:${KR_PORT}'
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema-registry:${SR_PORT}
+      KAFKA_REST_HOST_NAME: ${PUBLIC_HOSTNAME}
+      KAFKA_REST_LOG4J_ROOT_LOGLEVEL: ${LOG_LEVEL}
+      KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS:
+      KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN:
+      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS:
+      KAFKAREST_HEAP_OPTS:
+    networks:
+      kafka-net:
+    healthcheck:
+      test: curl -X GET http://localhost:${KR_PORT}/topics
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-30s}
+      retries: ${HEALTHCHECK_RETRIES:-3}
+      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-1}
+      restart_policy:
+        delay: ${RESTART_DELAY:-30s}
+      update_config:
+        delay: ${UPDATE_DELAY:-1m}
+      resources:
+        limits:
+          cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-256M}
+        reservations:
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-205M}
+
+networks:
+  kafka-net:
+    name: ${KAFKA_NET_NAME:-kafka-net}
+    driver: ${KAFKA_NET_DRIVER:-overlay}
+    external: true
