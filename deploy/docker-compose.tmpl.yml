@@ -17,11 +17,11 @@ services:
     networks:
       kafka-net:
     healthcheck:
-      test: curl -X GET http://localhost:${KR_PORT}/topics
+      test: curl -s -o /dev/null http://localhost:${KR_PORT}/
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-30s}
       retries: ${HEALTHCHECK_RETRIES:-3}
-      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
@@ -32,10 +32,10 @@ services:
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-256M}
+          memory: ${RESOURCES_LIMITS_MEMORY:-512M}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-205M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-256M}
 
 networks:
   kafka-net:
